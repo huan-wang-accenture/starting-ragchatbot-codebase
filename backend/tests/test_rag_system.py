@@ -1,4 +1,5 @@
 """Tests for RAGSystem end-to-end query handling."""
+
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 import sys
@@ -39,9 +40,7 @@ class TestMaxResultsConfiguration:
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create VectorStore with max_results=0 (the bug)
             store_with_zero = VectorStore(
-                chroma_path=temp_dir,
-                embedding_model="all-MiniLM-L6-v2",
-                max_results=0
+                chroma_path=temp_dir, embedding_model="all-MiniLM-L6-v2", max_results=0
             )
 
             # Act - Search with default limit (uses max_results)
@@ -59,26 +58,25 @@ class TestMaxResultsConfiguration:
         with tempfile.TemporaryDirectory() as temp_dir:
             # Create VectorStore with proper max_results
             store = VectorStore(
-                chroma_path=temp_dir,
-                embedding_model="all-MiniLM-L6-v2",
-                max_results=5
+                chroma_path=temp_dir, embedding_model="all-MiniLM-L6-v2", max_results=5
             )
 
             # Add test content
             from models import CourseChunk
+
             test_chunks = [
                 CourseChunk(
                     content="Machine learning is a subset of artificial intelligence.",
                     course_title="ML Course",
                     lesson_number=1,
-                    chunk_index=0
+                    chunk_index=0,
                 ),
                 CourseChunk(
                     content="Python is a popular programming language for ML.",
                     course_title="ML Course",
                     lesson_number=2,
-                    chunk_index=1
-                )
+                    chunk_index=1,
+                ),
             ]
             store.add_course_content(test_chunks)
 
@@ -100,26 +98,22 @@ class TestVectorStoreSearch:
         """Verify search returns SearchResults dataclass."""
         with tempfile.TemporaryDirectory() as temp_dir:
             store = VectorStore(
-                chroma_path=temp_dir,
-                embedding_model="all-MiniLM-L6-v2",
-                max_results=5
+                chroma_path=temp_dir, embedding_model="all-MiniLM-L6-v2", max_results=5
             )
 
             result = store.search(query="test")
 
             assert isinstance(result, SearchResults)
-            assert hasattr(result, 'documents')
-            assert hasattr(result, 'metadata')
-            assert hasattr(result, 'distances')
-            assert hasattr(result, 'error')
+            assert hasattr(result, "documents")
+            assert hasattr(result, "metadata")
+            assert hasattr(result, "distances")
+            assert hasattr(result, "error")
 
     def test_search_with_course_filter(self):
         """Verify course name filtering works."""
         with tempfile.TemporaryDirectory() as temp_dir:
             store = VectorStore(
-                chroma_path=temp_dir,
-                embedding_model="all-MiniLM-L6-v2",
-                max_results=5
+                chroma_path=temp_dir, embedding_model="all-MiniLM-L6-v2", max_results=5
             )
 
             # Add content from multiple courses
@@ -130,13 +124,25 @@ class TestVectorStoreSearch:
                 title="Python Course",
                 course_link="https://example.com/python",
                 instructor="John Doe",
-                lessons=[Lesson(lesson_number=1, title="Intro", lesson_link="https://example.com/python/1")]
+                lessons=[
+                    Lesson(
+                        lesson_number=1,
+                        title="Intro",
+                        lesson_link="https://example.com/python/1",
+                    )
+                ],
             )
             course2 = Course(
                 title="Java Course",
                 course_link="https://example.com/java",
                 instructor="Jane Doe",
-                lessons=[Lesson(lesson_number=1, title="Intro", lesson_link="https://example.com/java/1")]
+                lessons=[
+                    Lesson(
+                        lesson_number=1,
+                        title="Intro",
+                        lesson_link="https://example.com/java/1",
+                    )
+                ],
             )
             store.add_course_metadata(course1)
             store.add_course_metadata(course2)
@@ -147,14 +153,14 @@ class TestVectorStoreSearch:
                     content="Python variables and data types",
                     course_title="Python Course",
                     lesson_number=1,
-                    chunk_index=0
+                    chunk_index=0,
                 ),
                 CourseChunk(
                     content="Java variables and data types",
                     course_title="Java Course",
                     lesson_number=1,
-                    chunk_index=1
-                )
+                    chunk_index=1,
+                ),
             ]
             store.add_course_content(chunks)
 
@@ -170,9 +176,7 @@ class TestVectorStoreSearch:
         """Verify behavior when filtering by course name with no courses in store."""
         with tempfile.TemporaryDirectory() as temp_dir:
             store = VectorStore(
-                chroma_path=temp_dir,
-                embedding_model="all-MiniLM-L6-v2",
-                max_results=5
+                chroma_path=temp_dir, embedding_model="all-MiniLM-L6-v2", max_results=5
             )
 
             # Don't add any courses - search for nonexistent course in empty catalog
@@ -189,9 +193,11 @@ class TestVectorStoreSearch:
 class TestRAGSystemQuery:
     """Tests for RAGSystem.query() method."""
 
-    @patch('rag_system.AIGenerator')
-    @patch('rag_system.VectorStore')
-    def test_query_returns_response_and_sources(self, mock_vector_store_class, mock_ai_gen_class):
+    @patch("rag_system.AIGenerator")
+    @patch("rag_system.VectorStore")
+    def test_query_returns_response_and_sources(
+        self, mock_vector_store_class, mock_ai_gen_class
+    ):
         """Verify query returns both response and sources."""
         # Arrange
         mock_store = Mock()
@@ -213,6 +219,7 @@ class TestRAGSystemQuery:
         mock_config.MAX_HISTORY = 2
 
         from rag_system import RAGSystem
+
         rag = RAGSystem(mock_config)
 
         # Setup tool manager to return sources
@@ -228,9 +235,11 @@ class TestRAGSystemQuery:
         assert len(sources) == 1
         assert sources[0]["title"] == "Course - Lesson 1"
 
-    @patch('rag_system.AIGenerator')
-    @patch('rag_system.VectorStore')
-    def test_query_passes_tools_to_ai_generator(self, mock_vector_store_class, mock_ai_gen_class):
+    @patch("rag_system.AIGenerator")
+    @patch("rag_system.VectorStore")
+    def test_query_passes_tools_to_ai_generator(
+        self, mock_vector_store_class, mock_ai_gen_class
+    ):
         """Verify query passes tool definitions to AI generator."""
         # Arrange
         mock_store = Mock()
@@ -251,6 +260,7 @@ class TestRAGSystemQuery:
         mock_config.MAX_HISTORY = 2
 
         from rag_system import RAGSystem
+
         rag = RAGSystem(mock_config)
 
         # Act
@@ -262,9 +272,11 @@ class TestRAGSystemQuery:
         assert call_kwargs["tools"] is not None
         assert len(call_kwargs["tools"]) == 2  # search and outline tools
 
-    @patch('rag_system.AIGenerator')
-    @patch('rag_system.VectorStore')
-    def test_query_resets_sources_after_retrieval(self, mock_vector_store_class, mock_ai_gen_class):
+    @patch("rag_system.AIGenerator")
+    @patch("rag_system.VectorStore")
+    def test_query_resets_sources_after_retrieval(
+        self, mock_vector_store_class, mock_ai_gen_class
+    ):
         """Verify sources are reset after each query."""
         # Arrange
         mock_store = Mock()
@@ -285,6 +297,7 @@ class TestRAGSystemQuery:
         mock_config.MAX_HISTORY = 2
 
         from rag_system import RAGSystem
+
         rag = RAGSystem(mock_config)
 
         # Setup sources
@@ -303,9 +316,9 @@ class TestSearchResultsDataclass:
     def test_from_chroma_creates_results(self):
         """Verify from_chroma factory method works."""
         chroma_results = {
-            'documents': [["Doc 1", "Doc 2"]],
-            'metadatas': [[{"course": "A"}, {"course": "B"}]],
-            'distances': [[0.1, 0.2]]
+            "documents": [["Doc 1", "Doc 2"]],
+            "metadatas": [[{"course": "A"}, {"course": "B"}]],
+            "distances": [[0.1, 0.2]],
         }
 
         result = SearchResults.from_chroma(chroma_results)
@@ -328,9 +341,7 @@ class TestSearchResultsDataclass:
         """Verify is_empty works correctly."""
         empty_result = SearchResults(documents=[], metadata=[], distances=[])
         non_empty_result = SearchResults(
-            documents=["content"],
-            metadata=[{}],
-            distances=[0.1]
+            documents=["content"], metadata=[{}], distances=[0.1]
         )
 
         assert empty_result.is_empty() is True

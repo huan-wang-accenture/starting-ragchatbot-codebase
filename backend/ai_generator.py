@@ -1,6 +1,7 @@
 import anthropic
 from typing import List, Optional, Dict, Any
 
+
 class AIGenerator:
     """Handles interactions with Anthropic's Claude API for generating responses"""
 
@@ -37,22 +38,21 @@ All responses must be:
 4. **Example-supported** - Include relevant examples when they aid understanding
 Provide only the direct answer to what was asked.
 """
-    
+
     def __init__(self, api_key: str, model: str):
         self.client = anthropic.Anthropic(api_key=api_key)
         self.model = model
-        
+
         # Pre-build base API parameters
-        self.base_params = {
-            "model": self.model,
-            "temperature": 0,
-            "max_tokens": 800
-        }
-    
-    def generate_response(self, query: str,
-                         conversation_history: Optional[str] = None,
-                         tools: Optional[List] = None,
-                         tool_manager=None) -> str:
+        self.base_params = {"model": self.model, "temperature": 0, "max_tokens": 800}
+
+    def generate_response(
+        self,
+        query: str,
+        conversation_history: Optional[str] = None,
+        tools: Optional[List] = None,
+        tool_manager=None,
+    ) -> str:
         """
         Generate AI response with optional tool usage and conversation context.
 
@@ -100,8 +100,13 @@ Provide only the direct answer to what was asked.
                 return block.text
         return ""
 
-    def _make_api_call(self, messages: List[Dict[str, Any]], system_content: str,
-                       tools: Optional[List] = None, include_tools: bool = True):
+    def _make_api_call(
+        self,
+        messages: List[Dict[str, Any]],
+        system_content: str,
+        tools: Optional[List] = None,
+        include_tools: bool = True,
+    ):
         """
         Make a single API call to Claude.
 
@@ -117,7 +122,7 @@ Provide only the direct answer to what was asked.
         api_params = {
             **self.base_params,
             "messages": messages,
-            "system": system_content
+            "system": system_content,
         }
         if tools and include_tools:
             api_params["tools"] = tools
@@ -142,18 +147,16 @@ Provide only the direct answer to what was asked.
                     result = tool_manager.execute_tool(block.name, **block.input)
                 except Exception as e:
                     result = f"Tool execution error: {str(e)}"
-                tool_results.append({
-                    "type": "tool_result",
-                    "tool_use_id": block.id,
-                    "content": result
-                })
+                tool_results.append(
+                    {"type": "tool_result", "tool_use_id": block.id, "content": result}
+                )
         return tool_results
 
     def _build_messages_with_tool_results(
         self,
         messages: List[Dict[str, Any]],
         assistant_response,
-        tool_results: List[Dict[str, Any]]
+        tool_results: List[Dict[str, Any]],
     ) -> List[Dict[str, Any]]:
         """
         Append assistant response and tool results to message list.
@@ -167,7 +170,9 @@ Provide only the direct answer to what was asked.
             New message list with appended content (does not mutate original)
         """
         new_messages = messages.copy()
-        new_messages.append({"role": "assistant", "content": assistant_response.content})
+        new_messages.append(
+            {"role": "assistant", "content": assistant_response.content}
+        )
         new_messages.append({"role": "user", "content": tool_results})
         return new_messages
 
@@ -176,7 +181,7 @@ Provide only the direct answer to what was asked.
         messages: List[Dict[str, Any]],
         system_content: str,
         tools: List,
-        tool_manager
+        tool_manager,
     ) -> str:
         """
         Iterative tool execution loop supporting multiple rounds.

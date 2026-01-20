@@ -1,4 +1,5 @@
 """Tests for CourseSearchTool and related search functionality."""
+
 import pytest
 from unittest.mock import Mock, MagicMock
 import sys
@@ -21,7 +22,7 @@ class TestCourseSearchTool:
         mock_store.search.return_value = SearchResults(
             documents=["This is content about machine learning basics."],
             metadata=[{"course_title": "ML Course", "lesson_number": 1}],
-            distances=[0.1]
+            distances=[0.1],
         )
         mock_store.get_lesson_link.return_value = "https://example.com/lesson1"
 
@@ -35,9 +36,7 @@ class TestCourseSearchTool:
         assert "Lesson 1" in result
         assert "machine learning basics" in result
         mock_store.search.assert_called_once_with(
-            query="machine learning",
-            course_name=None,
-            lesson_number=None
+            query="machine learning", course_name=None, lesson_number=None
         )
 
     def test_execute_with_course_filter(self):
@@ -47,7 +46,7 @@ class TestCourseSearchTool:
         mock_store.search.return_value = SearchResults(
             documents=["Python content"],
             metadata=[{"course_title": "Python Course", "lesson_number": 2}],
-            distances=[0.2]
+            distances=[0.2],
         )
         mock_store.get_lesson_link.return_value = None
 
@@ -58,9 +57,7 @@ class TestCourseSearchTool:
 
         # Assert
         mock_store.search.assert_called_once_with(
-            query="variables",
-            course_name="Python",
-            lesson_number=None
+            query="variables", course_name="Python", lesson_number=None
         )
         assert "Python Course" in result
 
@@ -71,7 +68,7 @@ class TestCourseSearchTool:
         mock_store.search.return_value = SearchResults(
             documents=["Lesson 3 content"],
             metadata=[{"course_title": "Test Course", "lesson_number": 3}],
-            distances=[0.15]
+            distances=[0.15],
         )
         mock_store.get_lesson_link.return_value = "https://example.com/lesson3"
 
@@ -82,9 +79,7 @@ class TestCourseSearchTool:
 
         # Assert
         mock_store.search.assert_called_once_with(
-            query="testing",
-            course_name=None,
-            lesson_number=3
+            query="testing", course_name=None, lesson_number=3
         )
         assert "Lesson 3" in result
 
@@ -93,9 +88,7 @@ class TestCourseSearchTool:
         # Arrange
         mock_store = Mock()
         mock_store.search.return_value = SearchResults(
-            documents=[],
-            metadata=[],
-            distances=[]
+            documents=[], metadata=[], distances=[]
         )
 
         tool = CourseSearchTool(mock_store)
@@ -111,18 +104,14 @@ class TestCourseSearchTool:
         # Arrange
         mock_store = Mock()
         mock_store.search.return_value = SearchResults(
-            documents=[],
-            metadata=[],
-            distances=[]
+            documents=[], metadata=[], distances=[]
         )
 
         tool = CourseSearchTool(mock_store)
 
         # Act
         result = tool.execute(
-            query="topic",
-            course_name="Specific Course",
-            lesson_number=5
+            query="topic", course_name="Specific Course", lesson_number=5
         )
 
         # Assert
@@ -134,7 +123,9 @@ class TestCourseSearchTool:
         """Test error handling when vector store returns an error."""
         # Arrange
         mock_store = Mock()
-        mock_store.search.return_value = SearchResults.empty("Search error: Database connection failed")
+        mock_store.search.return_value = SearchResults.empty(
+            "Search error: Database connection failed"
+        )
 
         tool = CourseSearchTool(mock_store)
 
@@ -153,13 +144,13 @@ class TestCourseSearchTool:
             documents=["Content 1", "Content 2"],
             metadata=[
                 {"course_title": "Course A", "lesson_number": 1},
-                {"course_title": "Course A", "lesson_number": 2}
+                {"course_title": "Course A", "lesson_number": 2},
             ],
-            distances=[0.1, 0.2]
+            distances=[0.1, 0.2],
         )
         mock_store.get_lesson_link.side_effect = [
             "https://example.com/a1",
-            "https://example.com/a2"
+            "https://example.com/a2",
         ]
 
         tool = CourseSearchTool(mock_store)
@@ -182,9 +173,9 @@ class TestCourseSearchTool:
             metadata=[
                 {"course_title": "Course A", "lesson_number": 1},
                 {"course_title": "Course A", "lesson_number": 1},  # Duplicate
-                {"course_title": "Course A", "lesson_number": 2}
+                {"course_title": "Course A", "lesson_number": 2},
             ],
-            distances=[0.1, 0.15, 0.2]
+            distances=[0.1, 0.15, 0.2],
         )
         mock_store.get_lesson_link.return_value = "https://example.com"
 
@@ -225,8 +216,8 @@ class TestCourseOutlineTool:
             "lesson_count": 2,
             "lessons": [
                 {"lesson_number": 1, "lesson_title": "Introduction"},
-                {"lesson_number": 2, "lesson_title": "Basics"}
-            ]
+                {"lesson_number": 2, "lesson_title": "Basics"},
+            ],
         }
 
         tool = CourseOutlineTool(mock_store)
@@ -266,7 +257,7 @@ class TestToolManager:
         mock_store.search.return_value = SearchResults(
             documents=["Test content"],
             metadata=[{"course_title": "Test", "lesson_number": 1}],
-            distances=[0.1]
+            distances=[0.1],
         )
         mock_store.get_lesson_link.return_value = None
 
@@ -315,7 +306,7 @@ class TestToolManager:
         mock_store.search.return_value = SearchResults(
             documents=["Content"],
             metadata=[{"course_title": "Course", "lesson_number": 1}],
-            distances=[0.1]
+            distances=[0.1],
         )
         mock_store.get_lesson_link.return_value = "https://example.com"
 
@@ -340,7 +331,7 @@ class TestToolManager:
         mock_store.search.return_value = SearchResults(
             documents=["Content"],
             metadata=[{"course_title": "Course", "lesson_number": 1}],
-            distances=[0.1]
+            distances=[0.1],
         )
         mock_store.get_lesson_link.return_value = None
 
