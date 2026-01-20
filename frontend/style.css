@@ -245,6 +245,52 @@ header h1 {
     color: var(--text-secondary);
 }
 
+/* Source list styling */
+.sources-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 0.5rem 0.25rem 0.5rem;
+}
+
+.sources-list a.source-link,
+.sources-list .source-text {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    background: var(--background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    transition: all 0.2s ease;
+}
+
+.sources-list a.source-link {
+    color: #93c5fd;  /* Lighter blue for better contrast */
+    text-decoration: none;
+}
+
+.sources-list a.source-link::after {
+    content: ' ↗';
+    font-size: 0.7rem;
+    opacity: 0.7;
+}
+
+.sources-list a.source-link:hover {
+    background: var(--surface-hover);
+    border-color: #93c5fd;
+    color: #bfdbfe;  /* Even lighter on hover */
+    transform: translateX(2px);
+}
+
+.sources-list a.source-link:hover::after {
+    opacity: 1;
+}
+
+.sources-list .source-text {
+    color: var(--text-secondary);
+}
+
 /* Markdown formatting styles */
 .message-content h1,
 .message-content h2,
@@ -465,6 +511,28 @@ header h1 {
 .stats-header:focus,
 .suggested-header:focus {
     color: var(--primary-color);
+}
+
+/* New Chat Button */
+.new-chat-button {
+    width: 100%;
+    padding: 0.5rem 0;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    text-align: left;
+}
+
+.new-chat-button:hover,
+.new-chat-button:focus {
+    color: var(--primary-color);
+    outline: none;
 }
 
 .stats-header:hover,
